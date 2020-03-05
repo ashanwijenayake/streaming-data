@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Agent/FlinkAgent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Agent/FlinkAgent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Agent/KafkaAgent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Agent/KafkaAgent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Util/IConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Util/IConstants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/twitter.properties" beforeDir="false" afterPath="$PROJECT_DIR$/twitter.properties" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -170,7 +168,14 @@
       <option name="project" value="LOCAL" />
       <updated>1583409107272</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Code refactoring.">
+      <created>1583410312479</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1583410312479</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -188,6 +193,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Changed Flink and Kafka agents to support a json." />
-    <option name="LAST_COMMIT_MESSAGE" value="Changed Flink and Kafka agents to support a json." />
+    <MESSAGE value="Code refactoring." />
+    <option name="LAST_COMMIT_MESSAGE" value="Code refactoring." />
   </component>
 </project>
