@@ -15,6 +15,7 @@ import org.apache.flink.streaming.connectors.twitter.TwitterSource.EndpointIniti
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 import org.apache.flink.util.Collector;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -55,8 +56,7 @@ public class FlinkAgent {
         //Configure Kafka sink using flink kafka connector.
         {
             Properties kafkaProperties = PropertyFile.getKafkaProperties();
-            FlinkKafkaProducer<String> kafkaSource = new FlinkKafkaProducer<>(kafkaProperties.getProperty("topic.name"),
-                    new SimpleStringSchema(), kafkaProperties);
+            FlinkKafkaProducer<String> kafkaSource = new FlinkKafkaProducer<>(kafkaProperties.getProperty("topic.name"), new SimpleStringSchema(), kafkaProperties);
             streamSource.addSink(kafkaSource);
         }
         environment.execute(IConstants.JOB_NAME);
@@ -79,8 +79,24 @@ public class FlinkAgent {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 JsonNode jsonNode = mapper.readValue(tweet, JsonNode.class);
-                String tweetString = jsonNode.get("text").textValue();
-                out.collect(tweetString);
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put(IConstants.ElasticSearch.TWEET, jsonNode.get("text").textValue());
+                jsonObject.put(IConstants.ElasticSearch.LANGUAGE, jsonNode.get("lang").textValue());
+                jsonObject.put(IConstants.ElasticSearch.CREATED_AT, jsonNode.get("created_at").textValue());
+                jsonObject.put(IConstants.ElasticSearch.LOCATION, jsonNode.get("user").get("location").textValue());
+
+                JsonNode mobilePlatform = jsonNode.get("source");
+                if(mobilePlatform.textValue().contains(IConstants.ElasticSearch.ANDROID)){
+                    jsonObject.put(IConstants.ElasticSearch.MOBILE_PLATFORM, IConstants.ElasticSearch.ANDROID);
+
+                } else if (mobilePlatform.textValue().contains(IConstants.ElasticSearch.IPHONE)){
+                    jsonObject.put(IConstants.ElasticSearch.MOBILE_PLATFORM, IConstants.ElasticSearch.IPHONE);
+
+                } else {
+                    jsonObject.put(IConstants.ElasticSearch.MOBILE_PLATFORM, IConstants.ElasticSearch.LAPTOP);
+                }
+
+                out.collect(jsonObject.toJSONString());
             } catch (Exception ex) {
                 LOG.error("Exception occurred when getting the tweet from twitter String! ", ex.getCause());
             }

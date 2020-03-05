@@ -12,9 +12,14 @@ public interface IConstants {
 
     //Contains the elasticsearch constants.
     interface ElasticSearch {
-        public static final String POSTED_DATE = "posted_date";
+        public static final String CREATED_AT = "created_at";
         public static final String SENTIMENT_SCORE = "sentiment_score";
-        public static final String SENTIMENT_MAGNITUDE = "sentiment_magnitude";
         public static final String TWEET = "tweet";
+        public static final String LANGUAGE = "language";
+        public static final String LOCATION = "location";
+        public static final String MOBILE_PLATFORM = "mobile_platform";
+        public static final String ANDROID = "Android";
+        public static final String IPHONE = "iPhone";
+        public static final String LAPTOP = "Laptop";
     }
 }

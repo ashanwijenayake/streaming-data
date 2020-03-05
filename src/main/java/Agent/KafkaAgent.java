@@ -15,6 +15,9 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.util.Date;
@@ -42,23 +45,35 @@ public class KafkaAgent {
     //This class is intended to perform the required CEP.
     private static class TweetSentiment implements FlatMapFunction<String, String> {
         @Override
-        public void flatMap(String tweet, Collector<String> out) {
-            publishToElasticIndex(tweet, 1,1, new Date());
-            out.collect(tweet);
+        public void flatMap(String jsonTweet, Collector<String> out) throws ParseException {
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonTweet);
+            final String tweet = jsonObject.get(IConstants.ElasticSearch.TWEET).toString();
+            final Date createdDate = new Date(jsonObject.get(IConstants.ElasticSearch.CREATED_AT).toString());
+            final String language = jsonObject.get(IConstants.ElasticSearch.LANGUAGE).toString();
+            final String location = jsonObject.get(IConstants.ElasticSearch.LOCATION) != null ?
+                                    jsonObject.get(IConstants.ElasticSearch.LOCATION).toString() : null;
+
+            final String mobilePlatform = jsonObject.get(IConstants.ElasticSearch.MOBILE_PLATFORM).toString();
+            final float sentimentScore = 0;
+            publishToElasticIndex(tweet, createdDate, language, location, mobilePlatform, sentimentScore);
+            out.collect(jsonTweet);
         }
     }
 
     //The method is intended to publish to elasticsearch index.
-    private static void publishToElasticIndex(String tweet, Integer sentimentMagnitude, Integer sentimentScore, Date date){
+    private static void publishToElasticIndex(final String tweet, final Date createdAt, final String language,
+                                              final String location, final String mobilePlatform, final float sentimentScore) {
         try {
             Properties properties = PropertyFile.getElasticSearchProperties();
             XContentBuilder builder = XContentFactory.jsonBuilder();
             builder.startObject();
             {
-                builder.field(IConstants.ElasticSearch.POSTED_DATE, date);
-                builder.field(IConstants.ElasticSearch.SENTIMENT_SCORE, sentimentScore);
-                builder.field(IConstants.ElasticSearch.SENTIMENT_MAGNITUDE, sentimentMagnitude);
                 builder.field(IConstants.ElasticSearch.TWEET, tweet);
+                builder.field(IConstants.ElasticSearch.CREATED_AT, createdAt);
+                builder.field(IConstants.ElasticSearch.LANGUAGE, language);
+                builder.field(IConstants.ElasticSearch.LOCATION, location);
+                builder.field(IConstants.ElasticSearch.MOBILE_PLATFORM, mobilePlatform);
+                builder.field(IConstants.ElasticSearch.SENTIMENT_SCORE, sentimentScore);
             }
             builder.endObject();
             RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(

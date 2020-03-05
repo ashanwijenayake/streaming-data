@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" name="Default Changelist" comment="" />
+    <list default="true" id="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kafka.properties" beforeDir="false" afterPath="$PROJECT_DIR$/kafka.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Agent/FlinkAgent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Agent/FlinkAgent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Agent/KafkaAgent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Agent/KafkaAgent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Util/IConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Util/IConstants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/twitter.properties" beforeDir="false" afterPath="$PROJECT_DIR$/twitter.properties" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,6 +29,9 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="MavenImportPreferences">
     <option name="importingSettings">
       <MavenImportingSettings>
@@ -32,6 +44,7 @@
   </component>
   <component name="ProjectId" id="1YUKksDKLBn0eXIM1EUH7mKTwUz" />
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
@@ -58,9 +71,22 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.KafkaAgent">
     <configuration name="FlinkAgent" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Agent.FlinkAgent" />
+      <module name="twitterstreamingapp" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Agent.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="KafkaAgent" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Agent.KafkaAgent" />
       <module name="twitterstreamingapp" />
       <extension name="coverage">
         <pattern>
@@ -119,8 +145,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <list>
+      <item itemvalue="Application.FlinkAgent" />
+      <item itemvalue="Application.KafkaAgent" />
+    </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.KafkaAgent" />
         <item itemvalue="Application.FlinkAgent" />
       </list>
     </recent_temporary>
@@ -137,5 +168,18 @@
       <updated>1582991878666</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>
