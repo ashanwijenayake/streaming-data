@@ -32,18 +32,27 @@ public class KafkaAgent {
 
     public static Logger LOG = Logger.getLogger(KafkaAgent.class);
 
-    //Uses flink kafka connector to subscribe the data-stream.
+    /**
+     * Uses flink kafka connector to subscribe the data-stream.
+     * @param args arguments.
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception {
+
         StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
         Properties kafkaProperties = PropertyFile.getKafkaProperties();
         FlinkKafkaConsumer<String> kafkaSource = new FlinkKafkaConsumer<>
                 (kafkaProperties.getProperty("topic.name"), new SimpleStringSchema(), kafkaProperties);
-        environment.addSource(kafkaSource).flatMap(new TweetSentiment()).print();
+        environment.addSource(kafkaSource).flatMap(new TweetSentiment());
         environment.execute(IConstants.JOB_NAME);
     }
 
-    //This class is intended to perform the required CEP.
+    /**
+     * This class is intended to perform the required processing.
+     * The method implements the FlatMapFunction thus returning the processed and transformed response.
+     */
     private static class TweetSentiment implements FlatMapFunction<String, String> {
+
         @Override
         public void flatMap(String jsonTweet, Collector<String> out) throws ParseException {
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonTweet);
@@ -52,17 +61,26 @@ public class KafkaAgent {
             final String language = jsonObject.get(IConstants.ElasticSearch.LANGUAGE).toString();
             final String location = jsonObject.get(IConstants.ElasticSearch.LOCATION) != null ?
                                     jsonObject.get(IConstants.ElasticSearch.LOCATION).toString() : null;
-
-            final String mobilePlatform = jsonObject.get(IConstants.ElasticSearch.MOBILE_PLATFORM).toString();
             final float sentimentScore = 0;
-            publishToElasticIndex(tweet, createdDate, language, location, mobilePlatform, sentimentScore);
+            publishToElasticIndex(tweet, createdDate, language, location, sentimentScore);
             out.collect(jsonTweet);
         }
     }
 
-    //The method is intended to publish to elasticsearch index.
-    private static void publishToElasticIndex(final String tweet, final Date createdAt, final String language,
-                                              final String location, final String mobilePlatform, final float sentimentScore) {
+    /**
+     * The method is intended to publish to elasticsearch index.
+     * @param tweet tweet posted
+     * @param createdAt the date and time of the tweet
+     * @param language language of which the tweet was published
+     * @param location location of the user
+     * @param sentimentScore the sentiment value given for the tweet.
+     */
+    private static void publishToElasticIndex(final String tweet,
+                                              final Date createdAt,
+                                              final String language,
+                                              final String location,
+                                              final float sentimentScore) {
+
         try {
             Properties properties = PropertyFile.getElasticSearchProperties();
             XContentBuilder builder = XContentFactory.jsonBuilder();
@@ -72,7 +90,6 @@ public class KafkaAgent {
                 builder.field(IConstants.ElasticSearch.CREATED_AT, createdAt);
                 builder.field(IConstants.ElasticSearch.LANGUAGE, language);
                 builder.field(IConstants.ElasticSearch.LOCATION, location);
-                builder.field(IConstants.ElasticSearch.MOBILE_PLATFORM, mobilePlatform);
                 builder.field(IConstants.ElasticSearch.SENTIMENT_SCORE, sentimentScore);
             }
             builder.endObject();

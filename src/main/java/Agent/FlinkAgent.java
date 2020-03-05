@@ -45,25 +45,33 @@ public class FlinkAgent {
         }
     }
 
+    /**
+     * Configure Twitter source and initialize data-stream.
+     * @param args arguments
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception {
-        //Configure Twitter source and initialize data-stream.
+
         Properties twitterProperties = PropertyFile.getTwitterProperties();
         TwitterSource twitterSource = new TwitterSource(twitterProperties);
         twitterSource.setCustomEndpointInitializer(new TweetFilter());
         StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
         DataStream<String> streamSource = environment.addSource(twitterSource).flatMap(new TweetFlatMapper());
 
-        //Configure Kafka sink using flink kafka connector.
         {
             Properties kafkaProperties = PropertyFile.getKafkaProperties();
-            FlinkKafkaProducer<String> kafkaSource = new FlinkKafkaProducer<>(kafkaProperties.getProperty("topic.name"), new SimpleStringSchema(), kafkaProperties);
+            FlinkKafkaProducer<String> kafkaSource = new FlinkKafkaProducer<>(kafkaProperties.getProperty("topic.name"),
+                    new SimpleStringSchema(), kafkaProperties);
             streamSource.addSink(kafkaSource);
         }
         environment.execute(IConstants.JOB_NAME);
     }
 
-    //This class is intended to initialize the endpoint and the terms to track.
+    /**
+     * This class is intended to initialize the endpoint and the terms to track.
+     */
     private static class TweetFilter implements EndpointInitializer, Serializable {
+
         @Override
         public StreamingEndpoint createEndpoint() {
             StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
@@ -72,8 +80,11 @@ public class FlinkAgent {
         }
     }
 
-    //This class is intended to perform the required CEP.
+    /**
+     * This class is intended to perform the required processing before pushing to elastic-search.
+     */
     private static class TweetFlatMapper implements FlatMapFunction<String, String> {
+
         @Override
         public void flatMap(String tweet, Collector<String> out) {
             ObjectMapper mapper = new ObjectMapper();
@@ -84,18 +95,6 @@ public class FlinkAgent {
                 jsonObject.put(IConstants.ElasticSearch.LANGUAGE, jsonNode.get("lang").textValue());
                 jsonObject.put(IConstants.ElasticSearch.CREATED_AT, jsonNode.get("created_at").textValue());
                 jsonObject.put(IConstants.ElasticSearch.LOCATION, jsonNode.get("user").get("location").textValue());
-
-                JsonNode mobilePlatform = jsonNode.get("source");
-                if(mobilePlatform.textValue().contains(IConstants.ElasticSearch.ANDROID)){
-                    jsonObject.put(IConstants.ElasticSearch.MOBILE_PLATFORM, IConstants.ElasticSearch.ANDROID);
-
-                } else if (mobilePlatform.textValue().contains(IConstants.ElasticSearch.IPHONE)){
-                    jsonObject.put(IConstants.ElasticSearch.MOBILE_PLATFORM, IConstants.ElasticSearch.IPHONE);
-
-                } else {
-                    jsonObject.put(IConstants.ElasticSearch.MOBILE_PLATFORM, IConstants.ElasticSearch.LAPTOP);
-                }
-
                 out.collect(jsonObject.toJSONString());
             } catch (Exception ex) {
                 LOG.error("Exception occurred when getting the tweet from twitter String! ", ex.getCause());

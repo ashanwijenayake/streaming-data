@@ -17,9 +17,5 @@ public interface IConstants {
         public static final String TWEET = "tweet";
         public static final String LANGUAGE = "language";
         public static final String LOCATION = "location";
-        public static final String MOBILE_PLATFORM = "mobile_platform";
-        public static final String ANDROID = "Android";
-        public static final String IPHONE = "iPhone";
-        public static final String LAPTOP = "Laptop";
     }
 }
