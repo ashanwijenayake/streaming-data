@@ -90,21 +90,25 @@ public class FlinkAgent {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 JsonNode jsonNode = mapper.readValue(tweet, JsonNode.class);
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put(IConstants.ElasticSearch.TWEET, jsonNode.get("extended_tweet").get("full_text").textValue());
-                jsonObject.put(IConstants.ElasticSearch.LANGUAGE, jsonNode.get("lang").textValue());
-                jsonObject.put(IConstants.ElasticSearch.CREATED_AT, jsonNode.get("created_at").textValue());
 
-                //Add the tweeting country.
-                {
-                    String location = "N/A";
-                    if (!jsonNode.get("place").isEmpty()) {
-                        location = jsonNode.get("place").get("country").textValue();
+                boolean isEnglish = jsonNode.has("user") && jsonNode.get("user").has("lang") &&
+                        jsonNode.get("user").get("lang").asText().equals("en");
+                boolean containsTweet = jsonNode.has("extended_tweet");
+
+                if(containsTweet && isEnglish) {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put(IConstants.ElasticSearch.TWEET, jsonNode.get("extended_tweet").get("full_text").textValue());
+                    jsonObject.put(IConstants.ElasticSearch.LANGUAGE, jsonNode.get("lang").textValue());
+                    jsonObject.put(IConstants.ElasticSearch.CREATED_AT, jsonNode.get("created_at").textValue());
+                    {
+                        String location = "N/A";
+                        if (!jsonNode.get("place").isEmpty()) {
+                            location = jsonNode.get("place").get("country").textValue();
+                        }
+                        jsonObject.put(IConstants.ElasticSearch.LOCATION, location);
                     }
-                    jsonObject.put(IConstants.ElasticSearch.LOCATION, location);
+                    out.collect(jsonObject.toJSONString());
                 }
-
-                out.collect(jsonObject.toJSONString());
             } catch (Exception ex) {
                 LOG.error("Exception occurred when getting the tweet from twitter String! ", ex.getCause());
             }
