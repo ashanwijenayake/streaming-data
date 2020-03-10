@@ -91,13 +91,12 @@ public class FlinkAgent {
             try {
                 JsonNode jsonNode = mapper.readValue(tweet, JsonNode.class);
 
-                boolean isEnglish = jsonNode.has("user") && jsonNode.get("user").has("lang") &&
-                        jsonNode.get("user").get("lang").asText().equals("en");
-                boolean containsTweet = jsonNode.has("extended_tweet");
+                boolean isEnglish = jsonNode.has("lang") && jsonNode.get("lang").asText().equals("en");
+                boolean containsExtendedTweet = jsonNode.has("extended_tweet");
 
-                if(containsTweet && isEnglish) {
+                if(isEnglish) {
                     JSONObject jsonObject = new JSONObject();
-                    jsonObject.put(IConstants.ElasticSearch.TWEET, jsonNode.get("extended_tweet").get("full_text").textValue());
+                    jsonObject.put(IConstants.ElasticSearch.TWEET, containsExtendedTweet ? jsonNode.get("extended_tweet").get("full_text").textValue() : jsonNode.get("text").textValue());
                     jsonObject.put(IConstants.ElasticSearch.LANGUAGE, jsonNode.get("lang").textValue());
                     jsonObject.put(IConstants.ElasticSearch.CREATED_AT, jsonNode.get("created_at").textValue());
                     {
