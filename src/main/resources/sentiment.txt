@@ -94,7 +94,7 @@
 1	Feeling proud
 1	Cute bunnies
 0	Cold winter ahead
-0	Hopless struggle..
+0	Hopeless struggle..
 0	Ugly hat
 1	Big hug and lots of love
 1	I hope you have a wonderful celebration
@@ -102,3 +102,5 @@
 1   corona is under control
 1   recovery of corona patients has improved
 0   corona is out of control
+1   corona is an epidemic
+1   corona is a deadly virus
