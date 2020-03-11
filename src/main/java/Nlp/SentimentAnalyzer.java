@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * The class contains the logic to calculate the sentiment for a tweet.
+ * The class contains the logic to predict the sentiment for a tweet.
  * @author ashanw
  */
 public class SentimentAnalyzer {

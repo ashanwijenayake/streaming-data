@@ -43,7 +43,7 @@ public class KafkaAgent {
         Properties kafkaProperties = PropertyFile.getKafkaProperties();
         FlinkKafkaConsumer<String> kafkaSource = new FlinkKafkaConsumer<>
                 (kafkaProperties.getProperty("topic.name"), new SimpleStringSchema(), kafkaProperties);
-        environment.addSource(kafkaSource).flatMap(new TweetSentiment());
+        environment.addSource(kafkaSource).flatMap(new processTweet());
         environment.execute(IConstants.JOB_NAME);
     }
 
@@ -51,7 +51,7 @@ public class KafkaAgent {
      * This class is intended to perform the required processing.
      * The method implements the FlatMapFunction thus returning the processed and transformed response.
      */
-    private static class TweetSentiment implements FlatMapFunction<String, String> {
+    private static class processTweet implements FlatMapFunction<String, String> {
 
         @Override
         public void flatMap(String jsonTweet, Collector<String> out)  {
@@ -64,7 +64,7 @@ public class KafkaAgent {
                         jsonObject.get(IConstants.ElasticSearch.LOCATION).toString() : null;
                 final int sentimentScore = Integer.parseInt(jsonObject.get(IConstants.ElasticSearch.SENTIMENT_SCORE).toString());
 
-                publishToElasticIndex(tweet, createdDate, language, location, sentimentScore);
+                publishToElasticIndex(tweet, createdDate, language, location, sentimentScore); //publish to elasticsearch index
                 out.collect(jsonTweet);
             } catch (ParseException | NumberFormatException ex) {
                 LOG.error("Exception occurred when parsing or with number format.");
