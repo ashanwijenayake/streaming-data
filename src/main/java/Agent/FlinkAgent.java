@@ -1,5 +1,6 @@
 package Agent;
 
+import Nlp.SentimentAnalyzer;
 import Util.IConstants;
 import Util.PropertyFile;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
@@ -57,7 +58,6 @@ public class FlinkAgent {
         twitterSource.setCustomEndpointInitializer(new TweetFilter());
         StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
         DataStream<String> streamSource = environment.addSource(twitterSource).flatMap(new TweetFlatMapper());
-
         {
             Properties kafkaProperties = PropertyFile.getKafkaProperties();
             FlinkKafkaProducer<String> kafkaSource = new FlinkKafkaProducer<>(kafkaProperties.getProperty("topic.name"),
@@ -96,9 +96,11 @@ public class FlinkAgent {
 
                 if(isEnglish) {
                     JSONObject jsonObject = new JSONObject();
-                    jsonObject.put(IConstants.ElasticSearch.TWEET, containsExtendedTweet ? jsonNode.get("extended_tweet").get("full_text").textValue() : jsonNode.get("text").textValue());
+                    String tweetValue = containsExtendedTweet ? jsonNode.get("extended_tweet").get("full_text").textValue() : jsonNode.get("text").textValue();
+                    jsonObject.put(IConstants.ElasticSearch.TWEET, tweetValue);
                     jsonObject.put(IConstants.ElasticSearch.LANGUAGE, jsonNode.get("lang").textValue());
                     jsonObject.put(IConstants.ElasticSearch.CREATED_AT, jsonNode.get("created_at").textValue());
+                    jsonObject.put(IConstants.ElasticSearch.SENTIMENT_SCORE, SentimentAnalyzer.predictSentiment(tweetValue));
                     {
                         String location = "N/A";
                         if (!jsonNode.get("place").isEmpty()) {

@@ -54,16 +54,21 @@ public class KafkaAgent {
     private static class TweetSentiment implements FlatMapFunction<String, String> {
 
         @Override
-        public void flatMap(String jsonTweet, Collector<String> out) throws ParseException {
-            JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonTweet);
-            final String tweet = jsonObject.get(IConstants.ElasticSearch.TWEET).toString();
-            final Date createdDate = new Date(jsonObject.get(IConstants.ElasticSearch.CREATED_AT).toString());
-            final String language = jsonObject.get(IConstants.ElasticSearch.LANGUAGE).toString();
-            final String location = jsonObject.get(IConstants.ElasticSearch.LOCATION) != null ?
-                                    jsonObject.get(IConstants.ElasticSearch.LOCATION).toString() : null;
-            final float sentimentScore = 0;
-            publishToElasticIndex(tweet, createdDate, language, location, sentimentScore);
-            out.collect(jsonTweet);
+        public void flatMap(String jsonTweet, Collector<String> out)  {
+            try {
+                JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonTweet);
+                final String tweet = jsonObject.get(IConstants.ElasticSearch.TWEET).toString();
+                final Date createdDate = new Date(jsonObject.get(IConstants.ElasticSearch.CREATED_AT).toString());
+                final String language = jsonObject.get(IConstants.ElasticSearch.LANGUAGE).toString();
+                final String location = jsonObject.get(IConstants.ElasticSearch.LOCATION) != null ?
+                        jsonObject.get(IConstants.ElasticSearch.LOCATION).toString() : null;
+                final int sentimentScore = Integer.parseInt(jsonObject.get(IConstants.ElasticSearch.SENTIMENT_SCORE).toString());
+
+                publishToElasticIndex(tweet, createdDate, language, location, sentimentScore);
+                out.collect(jsonTweet);
+            } catch (ParseException | NumberFormatException ex) {
+                LOG.error("Exception occurred when parsing or with number format.");
+            }
         }
     }
 
@@ -79,7 +84,7 @@ public class KafkaAgent {
                                               final Date createdAt,
                                               final String language,
                                               final String location,
-                                              final float sentimentScore) {
+                                              final int sentimentScore) {
 
         try {
             Properties properties = PropertyFile.getElasticSearchProperties();

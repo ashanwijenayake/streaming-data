@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" name="Default Changelist" comment="">
+    <list default="true" id="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" name="Default Changelist" comment="Refactor code.">
+      <change afterPath="$PROJECT_DIR$/src/main/java/Nlp/Pipeline.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/Nlp/SentimentAnalyzer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/en-ner-person.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/en-pos-maxent.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/en-sent.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/en-token.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/sentiment.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Agent/FlinkAgent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Agent/FlinkAgent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Agent/KafkaAgent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Agent/KafkaAgent.java" afterDir="false" />
+    </list>
+    <list id="e10589a1-910b-4774-9aab-144c4c96f72e" name="Ignore" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -26,6 +38,26 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/.idea/workspace.xml">
+      <ranges>
+        <range start1="2" end1="2" start2="2" end2="8" changelist="e10589a1-910b-4774-9aab-144c4c96f72e" />
+        <range start1="3" end1="4" start2="9" end2="17" changelist="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" />
+        <range start1="5" end1="5" start2="18" end2="19" changelist="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" />
+        <range start1="6" end1="6" start2="20" end2="24" changelist="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" />
+        <range start1="27" end1="27" start2="45" end2="65" changelist="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" />
+        <range start1="41" end1="43" start2="79" end2="81" changelist="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" />
+        <range start1="44" end1="45" start2="82" end2="83" changelist="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" />
+        <range start1="51" end1="51" start2="89" end2="92" changelist="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" />
+        <range start1="67" end1="68" start2="108" end2="109" changelist="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" />
+        <range start1="147" end1="148" start2="188" end2="188" changelist="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" />
+        <range start1="149" end1="149" start2="189" end2="190" changelist="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" />
+        <range start1="158" end1="158" start2="199" end2="200" changelist="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" />
+        <range start1="198" end1="199" start2="240" end2="262" changelist="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" />
+        <range start1="218" end1="230" start2="281" end2="285" changelist="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" />
+      </ranges>
+    </file>
+  </component>
   <component name="MavenImportPreferences">
     <option name="importingSettings">
       <MavenImportingSettings>
@@ -39,15 +71,18 @@
   <component name="ProjectId" id="1YUKksDKLBn0eXIM1EUH7mKTwUz" />
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="project.structure.last.edited" value="Modules" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/main/resources" />
+    <property name="project.structure.last.edited" value="Artifacts" />
     <property name="project.structure.proportion" value="0.15" />
-    <property name="project.structure.side.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.2" />
   </component>
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
       <recent name="Util" />
       <recent name="Agent" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Development\Operational\twitterstreamingapp\src\main\resources" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Development\Operational\sampleTwitterStreaming" />
@@ -65,7 +100,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.FlinkAgent">
+  <component name="RunManager" selected="Application.KafkaAgent">
     <configuration name="FlinkAgent" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Agent.FlinkAgent" />
       <module name="twitterstreamingapp" />
@@ -156,6 +191,7 @@
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="770f938b-c17c-4ebb-a9c9-3fb4c39c8f4a" name="Default Changelist" comment="" />
+      <changelist id="e10589a1-910b-4774-9aab-144c4c96f72e" name="Ignore" comment="" />
       <created>1582991878666</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -196,7 +232,28 @@
       <option name="project" value="LOCAL" />
       <updated>1583476890468</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Add the extended tweet instead of the short text.">
+      <created>1583477815226</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1583477815226</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Modify Flink agent to support only english tweets.">
+      <created>1583815285105</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1583815285105</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Refactor code.">
+      <created>1583839373337</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1583839373337</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -216,17 +273,9 @@
     <MESSAGE value="Changed Flink and Kafka agents to support a json." />
     <MESSAGE value="Code refactoring." />
     <MESSAGE value="Add the tweeting place." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add the tweeting place." />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/Agent/FlinkAgent.java</url>
-          <line>101</line>
-          <option name="timeStamp" value="42" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="Add the extended tweet instead of the short text." />
+    <MESSAGE value="Modify Flink agent to support only english tweets." />
+    <MESSAGE value="Refactor code." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor code." />
   </component>
 </project>
