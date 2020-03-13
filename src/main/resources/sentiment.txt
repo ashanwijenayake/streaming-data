@@ -102,5 +102,8 @@
 1   corona is under control
 1   recovery of corona patients has improved
 0   corona is out of control
-1   corona is an epidemic
-1   corona is a deadly virus
+0   corona is an epidemic
+0   tested positive for corona virus
+1   tested negative for corona virus
+0   tested positive for corona virus is bad
+1   tested negative for corona virus is good

@@ -12,7 +12,10 @@ import java.io.IOException;
  */
 public class SentimentAnalyzer {
 
-    public static int predictSentiment(String tweet) {
+
+    private static LanguageDetector languageDetector;
+
+    static {
         try {
             InputStreamFactory dataIn = new MarkableFileInputStreamFactory(new File("src/main/resources/sentiment.txt"));
             ObjectStream lineStream = new PlainTextByLineStream(dataIn, "UTF-8");
@@ -22,14 +25,25 @@ public class SentimentAnalyzer {
             params.put(TrainingParameters.CUTOFF_PARAM, 5);
             params.put("DataIndexer", "TwoPass");
             params.put(TrainingParameters.ALGORITHM_PARAM, "NAIVEBAYES");
-
             LanguageDetectorModel languageDetectorModel = LanguageDetectorME.train(sampleStream, params, new LanguageDetectorFactory());
-            LanguageDetector ld = new LanguageDetectorME(languageDetectorModel);
-            Language[] languages = ld.predictLanguages(tweet);
-            return Integer.parseInt(languages[0].getLang());
-        } catch(IOException ex){
+            languageDetector = new LanguageDetectorME(languageDetectorModel);
 
+        } catch (IOException ex) {
+            languageDetector = null;
+        }
+    }
+
+    /**
+     * The following method is used to predict the sentiment.
+     * @param tweet tweet retrieved from twitter.
+     * @return sentiment value. 1 or 0
+     */
+    public static int predictSentiment(String tweet) {
+        if(languageDetector == null) {
             return -1;
+        } else {
+            Language[] languages = languageDetector.predictLanguages(tweet);
+            return Integer.parseInt(languages[0].getLang());
         }
     }
 }
