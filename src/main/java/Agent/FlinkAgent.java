@@ -46,31 +46,9 @@ public class FlinkAgent {
     }
 
     /**
-     * Configure Twitter source and initialize data-stream.
-     * @param args arguments
-     */
-    public static void main(String[] args) throws Exception {
-
-        Properties twitterProperties = PropertyFile.getTwitterProperties();
-        TwitterSource twitterSource = new TwitterSource(twitterProperties);
-        twitterSource.setCustomEndpointInitializer(new TweetFilter());
-        StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
-        DataStream<String> streamSource = environment.addSource(twitterSource).flatMap(new TweetFlatMapper());
-        streamSource.print();
-        {
-            Properties kafkaProperties = PropertyFile.getKafkaProperties();
-            FlinkKafkaProducer<String> kafkaSource = new FlinkKafkaProducer<>(kafkaProperties.getProperty("topic.name"),
-                    new SimpleStringSchema(), kafkaProperties);
-            streamSource.addSink(kafkaSource);
-        }
-        environment.execute(IConstants.JOB_NAME);
-    }
-
-    /**
      * This class is intended to initialize the endpoint and the terms to track.
      */
     private static class TweetFilter implements EndpointInitializer, Serializable {
-
         @Override
         public StreamingEndpoint createEndpoint() {
             StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
@@ -112,6 +90,26 @@ public class FlinkAgent {
             } catch (Exception ex) {
                 LOG.error("Exception occurred when getting the tweet from twitter String! ", ex.getCause());
             }
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            Properties twitterProperties = PropertyFile.getTwitterProperties();
+            TwitterSource twitterSource = new TwitterSource(twitterProperties);
+            twitterSource.setCustomEndpointInitializer(new TweetFilter());
+            StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
+            DataStream<String> streamSource = environment.addSource(twitterSource).flatMap(new TweetFlatMapper());
+
+            //Configure kafka sink.
+            Properties kafkaProperties = PropertyFile.getKafkaProperties();
+            FlinkKafkaProducer<String> kafkaSource = new FlinkKafkaProducer<>(kafkaProperties.getProperty("topic.name"), new SimpleStringSchema(), kafkaProperties);
+            streamSource.addSink(kafkaSource);
+
+            environment.execute(IConstants.JOB_NAME);
+
+        } catch (Exception ex) {
+            LOG.error("Exception occurred executing the environment ", ex.getCause());
         }
     }
 }

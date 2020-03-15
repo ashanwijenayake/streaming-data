@@ -33,21 +33,6 @@ public class KafkaAgent {
     public static Logger LOG = Logger.getLogger(KafkaAgent.class);
 
     /**
-     * Uses flink kafka connector to subscribe the data-stream.
-     * @param args arguments.
-     * @throws Exception
-     */
-    public static void main(String[] args) throws Exception {
-
-        StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
-        Properties kafkaProperties = PropertyFile.getKafkaProperties();
-        FlinkKafkaConsumer<String> kafkaSource = new FlinkKafkaConsumer<>
-                (kafkaProperties.getProperty("topic.name"), new SimpleStringSchema(), kafkaProperties);
-        environment.addSource(kafkaSource).flatMap(new processTweet());
-        environment.execute(IConstants.JOB_NAME);
-    }
-
-    /**
      * This class is intended to perform the required processing.
      * The method implements the FlatMapFunction thus returning the processed and transformed response.
      */
@@ -107,5 +92,15 @@ public class KafkaAgent {
         } catch (IOException ex){
             LOG.error("Error occurred when publishing to Elastic Search Index", ex);
         }
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
+        Properties kafkaProperties = PropertyFile.getKafkaProperties();
+        FlinkKafkaConsumer<String> kafkaSource = new FlinkKafkaConsumer<>
+                (kafkaProperties.getProperty("topic.name"), new SimpleStringSchema(), kafkaProperties);
+        environment.addSource(kafkaSource).flatMap(new processTweet());
+        environment.execute(IConstants.JOB_NAME);
     }
 }
