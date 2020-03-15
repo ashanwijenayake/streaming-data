@@ -36,7 +36,6 @@ public class FlinkAgent {
     //Stores the twitter search terms.
     private static List<String> twitterTerms;
 
-    //The block fetches the twitter terms from the twitter properties file.
     static {
         try {
             twitterTerms = Arrays.asList(PropertyFile.getTwitterProperties().getProperty("twitter.terms").split("\\s*,\\s*"));
@@ -49,7 +48,6 @@ public class FlinkAgent {
     /**
      * Configure Twitter source and initialize data-stream.
      * @param args arguments
-     * @throws Exception
      */
     public static void main(String[] args) throws Exception {
 
@@ -58,6 +56,7 @@ public class FlinkAgent {
         twitterSource.setCustomEndpointInitializer(new TweetFilter());
         StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
         DataStream<String> streamSource = environment.addSource(twitterSource).flatMap(new TweetFlatMapper());
+        streamSource.print();
         {
             Properties kafkaProperties = PropertyFile.getKafkaProperties();
             FlinkKafkaProducer<String> kafkaSource = new FlinkKafkaProducer<>(kafkaProperties.getProperty("topic.name"),

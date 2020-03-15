@@ -12,7 +12,6 @@ import java.io.IOException;
  */
 public class SentimentAnalyzer {
 
-
     private static LanguageDetector languageDetector;
 
     static {
