@@ -21,6 +21,7 @@ import org.json.simple.JSONObject;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -33,16 +34,23 @@ public class FlinkAgent {
 
     public static Logger LOG = Logger.getLogger(FlinkAgent.class);
 
-    //Stores the twitter search terms.
-    private static List<String> twitterTerms;
+    private static List<String> twitterTerms = Collections.EMPTY_LIST;
 
-    static {
-        try {
-            twitterTerms = Arrays.asList(PropertyFile.getTwitterProperties().getProperty("twitter.terms").split("\\s*,\\s*"));
-        } catch (IOException ex) {
-            LOG.error("Error occurred when reading the twitter terms from twitter.properties file.", ex);
-            System.exit(1);
+    /**
+     * The following method is intended to return the twitter terms.
+     * @return twitter terms
+     */
+    private static List<String> getTwitterTerms() {
+        if( twitterTerms.isEmpty()) {
+            try {
+                Properties properties = PropertyFile.getTwitterProperties();
+                String terms = properties.getProperty("twitter.terms");
+                twitterTerms = Arrays.asList(terms.split("\\s*,\\s*"));
+            } catch(IOException ex){
+                LOG.error(ex.getCause());
+            }
         }
+        return twitterTerms;
     }
 
     /**
@@ -52,7 +60,7 @@ public class FlinkAgent {
         @Override
         public StreamingEndpoint createEndpoint() {
             StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-            endpoint.trackTerms(twitterTerms);
+            endpoint.trackTerms(getTwitterTerms());
             return endpoint;
         }
     }
