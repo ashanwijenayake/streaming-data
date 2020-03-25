@@ -34,29 +34,26 @@ public class FlinkAgent {
 
     public static Logger LOG = Logger.getLogger(FlinkAgent.class);
 
-    private static List<String> twitterTerms = Collections.EMPTY_LIST;
-
     /**
      * The following method is intended to return the twitter terms.
      * @return twitter terms
      */
     private static List<String> getTwitterTerms() {
-        if( twitterTerms.isEmpty()) {
-            try {
-                Properties properties = PropertyFile.getTwitterProperties();
-                String terms = properties.getProperty("twitter.terms");
-                twitterTerms = Arrays.asList(terms.split("\\s*,\\s*"));
-            } catch(IOException ex){
-                LOG.error(ex.getCause());
-            }
+        List<String> termsList;
+        try {
+            Properties properties = PropertyFile.getTwitterProperties();
+            String terms = properties.getProperty("twitter.terms");
+            termsList = Arrays.asList(terms.split("\\s*,\\s*"));
+        }catch (IOException ex){
+            termsList = Collections.EMPTY_LIST;
         }
-        return twitterTerms;
+        return termsList;
     }
 
     /**
      * This class is intended to initialize the endpoint and the terms to track.
      */
-    private static class TweetFilter implements EndpointInitializer, Serializable {
+    private static class TweetFilter implements EndpointInitializer, Serializable  {
         @Override
         public StreamingEndpoint createEndpoint() {
             StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
@@ -65,35 +62,41 @@ public class FlinkAgent {
         }
     }
 
+    private static String getJsonString(final JsonNode jsonNode){
+        final boolean isEnglish = jsonNode.has(IConstants.Twitter.LANG) &&
+                                  jsonNode.get(IConstants.Twitter.LANG).asText().equals(IConstants.Twitter.EN);
+        final boolean containsExtendedTweet = jsonNode.has(IConstants.Twitter.EXTENDED_TWEET);
+        String location;
+        JSONObject jsonObject = new JSONObject();
+        String tweet = containsExtendedTweet ? jsonNode.get(IConstants.Twitter.EXTENDED_TWEET)
+                                                       .get(IConstants.Twitter.FULL_TEXT).textValue()
+                                             : jsonNode.get(IConstants.Twitter.TEXT).textValue();
+        jsonObject.put(IConstants.ElasticSearch.TWEET, tweet);
+        jsonObject.put(IConstants.ElasticSearch.LANGUAGE, jsonNode.get(IConstants.Twitter.LANG).textValue());
+        jsonObject.put(IConstants.ElasticSearch.CREATED_AT, jsonNode.get(IConstants.Twitter.CREATED_AT).textValue());
+        jsonObject.put(IConstants.ElasticSearch.SENTIMENT_SCORE, isEnglish ? SentimentAnalyzer.predictSentiment(tweet) : -1);
+
+        if (!jsonNode.get(IConstants.Twitter.PLACE).isEmpty()) {
+            location = jsonNode.get(IConstants.Twitter.PLACE).get(IConstants.Twitter.COUNTRY).textValue();
+        } else {
+            location = IConstants.NOT_AVAILABLE;
+        }
+        jsonObject.put(IConstants.ElasticSearch.LOCATION, location);
+        return jsonObject.toJSONString();
+    }
+
     /**
      * This class is intended to perform the required processing before pushing to elastic-search.
      */
     private static class TweetFlatMapper implements FlatMapFunction<String, String> {
-
         @Override
         public void flatMap(String tweet, Collector<String> out) {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 JsonNode jsonNode = mapper.readValue(tweet, JsonNode.class);
-
-                boolean isEnglish = jsonNode.has("lang") && jsonNode.get("lang").asText().equals("en");
-                boolean containsExtendedTweet = jsonNode.has("extended_tweet");
-
-                if(isEnglish) {
-                    JSONObject jsonObject = new JSONObject();
-                    String tweetValue = containsExtendedTweet ? jsonNode.get("extended_tweet").get("full_text").textValue() : jsonNode.get("text").textValue();
-                    jsonObject.put(IConstants.ElasticSearch.TWEET, tweetValue);
-                    jsonObject.put(IConstants.ElasticSearch.LANGUAGE, jsonNode.get("lang").textValue());
-                    jsonObject.put(IConstants.ElasticSearch.CREATED_AT, jsonNode.get("created_at").textValue());
-                    jsonObject.put(IConstants.ElasticSearch.SENTIMENT_SCORE, SentimentAnalyzer.predictSentiment(tweetValue));
-                    {
-                        String location = "N/A";
-                        if (!jsonNode.get("place").isEmpty()) {
-                            location = jsonNode.get("place").get("country").textValue();
-                        }
-                        jsonObject.put(IConstants.ElasticSearch.LOCATION, location);
-                    }
-                    out.collect(jsonObject.toJSONString());
+                String jsonString = getJsonString(jsonNode);
+                if(null != jsonString) {
+                    out.collect(jsonString);
                 }
             } catch (Exception ex) {
                 LOG.error("Exception occurred when getting the tweet from twitter String! ", ex.getCause());
@@ -111,11 +114,10 @@ public class FlinkAgent {
 
             //Configure kafka sink.
             Properties kafkaProperties = PropertyFile.getKafkaProperties();
-            FlinkKafkaProducer<String> kafkaSource = new FlinkKafkaProducer<>(kafkaProperties.getProperty("topic.name"), new SimpleStringSchema(), kafkaProperties);
+            FlinkKafkaProducer<String> kafkaSource = new FlinkKafkaProducer<>(kafkaProperties.getProperty("topic.name"),
+                                                     new SimpleStringSchema(), kafkaProperties);
             streamSource.addSink(kafkaSource);
-
             environment.execute(IConstants.JOB_NAME);
-
         } catch (Exception ex) {
             LOG.error("Exception occurred executing the environment ", ex.getCause());
         }

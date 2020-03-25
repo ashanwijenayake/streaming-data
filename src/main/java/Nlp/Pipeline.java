@@ -18,8 +18,7 @@ import java.util.List;
 
 public class Pipeline {
 
-    public static void init() throws IOException {
-        String paragraph = "John is 26 years old. His best friend's name is Leonard. He has a sister named Penny.";
+    public static void init(String paragraph) throws IOException {
 
         //Sentence detection
         InputStream sentenceInputStream = Pipeline.class.getResourceAsStream("/en-sent.bin");
