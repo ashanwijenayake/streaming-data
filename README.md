@@ -1,4 +1,4 @@
-> The repository maintains code for a streaming data pipeline built using Flink, Kafka, Elasticsearch and Kibana
+The repository maintains code for a streaming data pipeline built using Flink, Kafka, Elasticsearch and Kibana
 The following link below is an article explaining this implementation. 
 
 https://www.linkedin.com/pulse/streaming-data-apache-flink-ashan-wijenayake/
@@ -64,10 +64,3 @@ https://www.elastic.co/downloads/kibana
 -	Open Kibana config in an editor and point elasticsearch.hosts to your Elasticsearch instance
 -	Run bin/Kibana (or bin\kibana.bat on Windows)
 -	Open your browser and navigate to http://localhost:5601 
-
-### Logstash
-- Download and unzip Logstash 
-https://artifacts.elastic.co/downloads/logstash/logstash-7.6.1.zip 
--	Prepare a logstash.conf config file
--	Run `bin/logstash -f logstash.conf`
--	For more information https://www.elastic.co/guide/en/logstash/current/getting-started-with-logstash.html
