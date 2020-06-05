@@ -39,9 +39,9 @@ public class FlinkAgent {
      * @return twitter terms
      */
     private static List<String> getTwitterTerms() {
-        List<String> termsList;
+        List termsList;
         try {
-            Properties properties = PropertyFile.getTwitterProperties();
+            Properties properties = PropertyFile.getProperties(IConstants.TWITTER_PROPERTIES);
             String terms = properties.getProperty("twitter.terms");
             termsList = Arrays.asList(terms.split("\\s*,\\s*"));
         }catch (IOException ex){
@@ -106,14 +106,14 @@ public class FlinkAgent {
 
     public static void main(String[] args) {
         try {
-            Properties twitterProperties = PropertyFile.getTwitterProperties();
+            Properties twitterProperties = PropertyFile.getProperties(IConstants.TWITTER_PROPERTIES);
             TwitterSource twitterSource = new TwitterSource(twitterProperties);
             twitterSource.setCustomEndpointInitializer(new TweetFilter());
             StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
             DataStream<String> streamSource = environment.addSource(twitterSource).flatMap(new TweetFlatMapper());
 
             //Configure kafka sink.
-            Properties kafkaProperties = PropertyFile.getKafkaProperties();
+            Properties kafkaProperties = PropertyFile.getProperties(IConstants.KAFKA_PROPERTIES);
             FlinkKafkaProducer<String> kafkaSource = new FlinkKafkaProducer<>(kafkaProperties.getProperty("topic.name"),
                                                      new SimpleStringSchema(), kafkaProperties);
             streamSource.addSink(kafkaSource);

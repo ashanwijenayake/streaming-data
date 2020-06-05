@@ -11,21 +11,9 @@ import java.util.Properties;
  */
 public class PropertyFile {
 
-    public static Properties getKafkaProperties() throws IOException {
-        Properties kafkaProperties = new Properties();
-        kafkaProperties.load(new FileInputStream(IConstants.KAFKA_PROPERTIES));
-        return kafkaProperties;
-    }
-
-    public static Properties getTwitterProperties() throws IOException {
-        Properties twitterProperties = new Properties();
-        twitterProperties.load(new FileInputStream(IConstants.TWITTER_PROPERTIES));
-        return twitterProperties;
-    }
-
-    public static Properties getElasticSearchProperties() throws IOException {
+    public static Properties getProperties(final String propertiesFile) throws IOException {
         Properties properties = new Properties();
-        properties.load(new FileInputStream(IConstants.ELASTICSEARCH_PROPERTIES));
+        properties.load(new FileInputStream(propertiesFile));
         return properties;
     }
 }

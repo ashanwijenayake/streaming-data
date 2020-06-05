@@ -72,7 +72,7 @@ public class KafkaAgent {
                                               final int sentimentScore) {
 
         try {
-            Properties properties = PropertyFile.getElasticSearchProperties();
+            Properties properties = PropertyFile.getProperties(IConstants.ELASTICSEARCH_PROPERTIES);
             XContentBuilder builder = XContentFactory.jsonBuilder();
             builder.startObject();
             {
@@ -97,7 +97,7 @@ public class KafkaAgent {
     public static void main(String[] args) throws Exception {
 
         StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
-        Properties kafkaProperties = PropertyFile.getKafkaProperties();
+        Properties kafkaProperties = PropertyFile.getProperties(IConstants.KAFKA_PROPERTIES);
         FlinkKafkaConsumer<String> kafkaSource = new FlinkKafkaConsumer<>
                 (kafkaProperties.getProperty("topic.name"), new SimpleStringSchema(), kafkaProperties);
         environment.addSource(kafkaSource).flatMap(new processTweet());
