@@ -1,4 +1,3 @@
-# streaming-data
 The repository maintains code for a streaming data pipeline built using Flink, Kafka, Elasticsearch and Kibana
 The following link below is an article explaining this implementation. 
 
@@ -65,42 +64,3 @@ https://www.elastic.co/downloads/kibana
 -	Open Kibana config in an editor and point elasticsearch.hosts to your Elasticsearch instance
 -	Run bin/Kibana (or bin\kibana.bat on Windows)
 -	Open your browser and navigate to http://localhost:5601 
-
-### Logstash
-- Download and unzip Logstash 
-https://artifacts.elastic.co/downloads/logstash/logstash-7.6.1.zip 
--	Prepare a logstash.conf config file
--	Run `bin/logstash -f logstash.conf`
--	For more information https://www.elastic.co/guide/en/logstash/current/getting-started-with-logstash.html
- 
-## Use case Extension
-Storing the twitter data on a NoSQL database for further analytics or visualization.
-
-### Cassandra
-- Setup IntelliJ idea with python
-  > Go to File  ->  Settings  ->  Plugins  ->  Select Market place and install the python plugin.
--	Please install python in your local machine and the node and set the paths to environment variables. Install the below mentioned python packages.
-  - `Pip install kafka-python`
-  - `Pip install Cassandra-driver`
-  - `Pip install pyspark`
--	Download and install Cassandra.
-https://www.howtoforge.com/tutorial/how-to-install-apache-cassandra-on-centos-7/
--	A common problem when starting Casandra is Job for cassandra.service failed because a configured resource limit was exceeded. Use the command: systemctl status cassandra.service and journalctl -xe for details about the service. The Cassandra service is not enabled on newer Linux systems, which use systemd. To verify use:  systemctl is-enabled cassandra.service. To enable the service type: systemctl enable cassandra.service.
--	Now you can start the service using:  `systemctl start cassandra.service`
--	The web dispatcher can be accessed on 127.0.0.1:9042
--	Prepare Cassandra by creating a Keyspace and Table.
-
-```  
-CREATE KEY pasanjajja WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '2'} AND durable_writes = true; 
-```
-``` 
-CREATE TABLE pasanjajja.testTable (
-    sentiment_score text,
-    created_at text,
-    tweet text,
-    screen_name text,
-    language text,
-    location text,
-    PRIMARY KEY (created_at)
-); 
-``` 
