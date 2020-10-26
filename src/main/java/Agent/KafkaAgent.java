@@ -1,7 +1,7 @@
-package Agent;
+package agent;
 
-import Util.IConstants;
-import Util.PropertyFile;
+import util.IConstants;
+import util.PropertyFile;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;

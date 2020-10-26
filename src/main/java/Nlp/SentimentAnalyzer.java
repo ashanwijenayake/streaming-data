@@ -1,4 +1,4 @@
-package Nlp;
+package nlp;
 
 import opennlp.tools.langdetect.*;
 import opennlp.tools.util.*;

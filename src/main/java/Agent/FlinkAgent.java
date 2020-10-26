@@ -1,8 +1,8 @@
-package Agent;
+package agent;
 
-import Nlp.SentimentAnalyzer;
-import Util.IConstants;
-import Util.PropertyFile;
+import nlp.SentimentAnalyzer;
+import util.IConstants;
+import util.PropertyFile;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import com.twitter.hbc.core.endpoint.StreamingEndpoint;
 import org.apache.flink.api.common.functions.FlatMapFunction;

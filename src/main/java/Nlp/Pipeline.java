@@ -1,4 +1,4 @@
-package Nlp;
+package nlp;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
