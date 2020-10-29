@@ -42,12 +42,12 @@ public class KafkaAgent {
         public void flatMap(String jsonTweet, Collector<String> out)  {
             try {
                 JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonTweet);
-                final String tweet = jsonObject.get(IConstants.ElasticSearch.TWEET).toString();
-                final Date createdDate = new Date(jsonObject.get(IConstants.ElasticSearch.CREATED_AT).toString());
-                final String language = jsonObject.get(IConstants.ElasticSearch.LANGUAGE).toString();
-                final String location = jsonObject.get(IConstants.ElasticSearch.LOCATION) != null ?
-                        jsonObject.get(IConstants.ElasticSearch.LOCATION).toString() : null;
-                final int sentimentScore = Integer.parseInt(jsonObject.get(IConstants.ElasticSearch.SENTIMENT_SCORE).toString());
+                final String tweet = jsonObject.get(IConstants.Es.TWEET).toString();
+                final Date createdDate = new Date(jsonObject.get(IConstants.Es.CREATED_AT).toString());
+                final String language = jsonObject.get(IConstants.Es.LANGUAGE).toString();
+                final String location = jsonObject.get(IConstants.Es.LOCATION) != null ?
+                        jsonObject.get(IConstants.Es.LOCATION).toString() : null;
+                final int sentimentScore = Integer.parseInt(jsonObject.get(IConstants.Es.SENTIMENT).toString());
 
                 publishToElasticIndex(tweet, createdDate, language, location, sentimentScore); //publish to elasticsearch index
                 out.collect(jsonTweet);
@@ -72,15 +72,15 @@ public class KafkaAgent {
                                               final int sentimentScore) {
 
         try {
-            Properties properties = PropertyFile.getProperties(IConstants.ELASTICSEARCH_PROPERTIES);
+            Properties properties = PropertyFile.getProperties(IConstants.ES_PROPERTIES);
             XContentBuilder builder = XContentFactory.jsonBuilder();
             builder.startObject();
             {
-                builder.field(IConstants.ElasticSearch.TWEET, tweet);
-                builder.field(IConstants.ElasticSearch.CREATED_AT, createdAt);
-                builder.field(IConstants.ElasticSearch.LANGUAGE, language);
-                builder.field(IConstants.ElasticSearch.LOCATION, location);
-                builder.field(IConstants.ElasticSearch.SENTIMENT_SCORE, sentimentScore);
+                builder.field(IConstants.Es.TWEET, tweet);
+                builder.field(IConstants.Es.CREATED_AT, createdAt);
+                builder.field(IConstants.Es.LANGUAGE, language);
+                builder.field(IConstants.Es.LOCATION, location);
+                builder.field(IConstants.Es.SENTIMENT, sentimentScore);
             }
             builder.endObject();
             RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(

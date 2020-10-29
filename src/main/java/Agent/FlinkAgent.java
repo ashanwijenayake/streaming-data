@@ -16,14 +16,10 @@ import org.apache.flink.streaming.connectors.twitter.TwitterSource.EndpointIniti
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 import org.apache.flink.util.Collector;
 import org.apache.log4j.Logger;
-import org.json.simple.JSONObject;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * The class acts as a Twitter Producer.
@@ -32,7 +28,7 @@ import java.util.Properties;
  */
 public class FlinkAgent {
 
-    public static Logger LOG = Logger.getLogger(FlinkAgent.class);
+    private static Logger LOG = Logger.getLogger(FlinkAgent.class);
 
     /**
      * The following method is intended to return the twitter terms.
@@ -63,26 +59,29 @@ public class FlinkAgent {
     }
 
     private static String getJsonString(final JsonNode jsonNode){
-        final boolean isEnglish = jsonNode.has(IConstants.Twitter.LANG) &&
-                                  jsonNode.get(IConstants.Twitter.LANG).asText().equals(IConstants.Twitter.EN);
-        final boolean containsExtendedTweet = jsonNode.has(IConstants.Twitter.EXTENDED_TWEET);
-        String location;
-        JSONObject jsonObject = new JSONObject();
-        String tweet = containsExtendedTweet ? jsonNode.get(IConstants.Twitter.EXTENDED_TWEET)
-                                                       .get(IConstants.Twitter.FULL_TEXT).textValue()
-                                             : jsonNode.get(IConstants.Twitter.TEXT).textValue();
-        jsonObject.put(IConstants.ElasticSearch.TWEET, tweet);
-        jsonObject.put(IConstants.ElasticSearch.LANGUAGE, jsonNode.get(IConstants.Twitter.LANG).textValue());
-        jsonObject.put(IConstants.ElasticSearch.CREATED_AT, jsonNode.get(IConstants.Twitter.CREATED_AT).textValue());
-        jsonObject.put(IConstants.ElasticSearch.SENTIMENT_SCORE, isEnglish ? SentimentAnalyzer.predictSentiment(tweet) : -1);
+        final boolean isEnglish = jsonNode.has(IConstants.Twitter.LANG) && IConstants.Twitter.EN.equals(jsonNode.get(IConstants.Twitter.LANG).asText());
+        final boolean containsExtendedTweet = jsonNode.has(IConstants.Twitter.EXT_TWEET);
+        Map<String, Object> twitterMap = new LinkedHashMap<>();
 
+        String tweet;
+        if(containsExtendedTweet){
+            tweet = jsonNode.get(IConstants.Twitter.EXT_TWEET).get(IConstants.Twitter.FULL_TEXT).textValue();
+        } else {
+            tweet = jsonNode.get(IConstants.Twitter.TEXT).textValue();
+        }
+        twitterMap.put(IConstants.Es.TWEET, tweet);
+        twitterMap.put(IConstants.Es.LANGUAGE, jsonNode.get(IConstants.Twitter.LANG).textValue());
+        twitterMap.put(IConstants.Es.CREATED_AT, jsonNode.get(IConstants.Twitter.CREATED_AT).textValue());
+        twitterMap.put(IConstants.Es.SENTIMENT, isEnglish ? SentimentAnalyzer.predictSentiment(tweet) : -1);
+
+        String location;
         if (!jsonNode.get(IConstants.Twitter.PLACE).isEmpty()) {
             location = jsonNode.get(IConstants.Twitter.PLACE).get(IConstants.Twitter.COUNTRY).textValue();
         } else {
             location = IConstants.NOT_AVAILABLE;
         }
-        jsonObject.put(IConstants.ElasticSearch.LOCATION, location);
-        return jsonObject.toJSONString();
+        twitterMap.put(IConstants.Es.LOCATION, location);
+        return twitterMap.toString();
     }
 
     /**
