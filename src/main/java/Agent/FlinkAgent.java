@@ -1,6 +1,10 @@
 package agent;
 
+import dto.PayLoad;
 import nlp.SentimentAnalyzer;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import util.IConstants;
 import util.PropertyFile;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
@@ -13,10 +17,10 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.twitter.TwitterSource;
 import org.apache.flink.streaming.connectors.twitter.TwitterSource.EndpointInitializer;
-import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 import org.apache.flink.util.Collector;
 import org.apache.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
@@ -35,13 +39,13 @@ public class FlinkAgent {
      * @return twitter terms
      */
     private static List<String> getTwitterTerms() {
-        List termsList;
+        List<String> termsList;
         try {
             Properties properties = PropertyFile.getProperties(IConstants.TWITTER_PROPERTIES);
             String terms = properties.getProperty("twitter.terms");
             termsList = Arrays.asList(terms.split("\\s*,\\s*"));
         }catch (IOException ex){
-            termsList = Collections.EMPTY_LIST;
+            termsList = new ArrayList<>();
         }
         return termsList;
     }
@@ -58,10 +62,15 @@ public class FlinkAgent {
         }
     }
 
-    private static String getJsonString(final JsonNode jsonNode){
+    /**
+     * The following method is intended to return the twitter payload after the required transformations.
+     * @param jsonNode jsonNode
+     * @return twitter payload object
+     */
+    private static PayLoad getPayLoad(final JsonNode jsonNode){
         final boolean isEnglish = jsonNode.has(IConstants.Twitter.LANG) && IConstants.Twitter.EN.equals(jsonNode.get(IConstants.Twitter.LANG).asText());
         final boolean containsExtendedTweet = jsonNode.has(IConstants.Twitter.EXT_TWEET);
-        Map<String, Object> twitterMap = new LinkedHashMap<>();
+        PayLoad payLoad = new PayLoad();
 
         String tweet;
         if(containsExtendedTweet){
@@ -69,10 +78,10 @@ public class FlinkAgent {
         } else {
             tweet = jsonNode.get(IConstants.Twitter.TEXT).textValue();
         }
-        twitterMap.put(IConstants.Es.TWEET, tweet);
-        twitterMap.put(IConstants.Es.LANGUAGE, jsonNode.get(IConstants.Twitter.LANG).textValue());
-        twitterMap.put(IConstants.Es.CREATED_AT, jsonNode.get(IConstants.Twitter.CREATED_AT).textValue());
-        twitterMap.put(IConstants.Es.SENTIMENT, isEnglish ? SentimentAnalyzer.predictSentiment(tweet) : -1);
+        payLoad.setTweet(tweet);
+        payLoad.setLanguage(jsonNode.get(IConstants.Twitter.LANG).textValue());
+        payLoad.setCreatedAt(jsonNode.get(IConstants.Twitter.CREATED_AT).textValue());
+        payLoad.setSentiment(isEnglish ? SentimentAnalyzer.predictSentiment(tweet) : -1);
 
         String location;
         if (!jsonNode.get(IConstants.Twitter.PLACE).isEmpty()) {
@@ -80,42 +89,73 @@ public class FlinkAgent {
         } else {
             location = IConstants.NOT_AVAILABLE;
         }
-        twitterMap.put(IConstants.Es.LOCATION, location);
-        return twitterMap.toString();
+        payLoad.setLocation(location);
+        return payLoad;
     }
 
     /**
      * This class is intended to perform the required processing before pushing to elastic-search.
      */
-    private static class TweetFlatMapper implements FlatMapFunction<String, String> {
+    private static class TweetFlatMapper implements FlatMapFunction<String, PayLoad> {
         @Override
-        public void flatMap(String tweet, Collector<String> out) {
+        public void flatMap(String tweet, Collector<PayLoad> out) {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 JsonNode jsonNode = mapper.readValue(tweet, JsonNode.class);
-                String jsonString = getJsonString(jsonNode);
-                if(null != jsonString) {
-                    out.collect(jsonString);
-                }
+                PayLoad payLoad = getPayLoad(jsonNode);
+                out.collect(payLoad);
             } catch (Exception ex) {
                 LOG.error("Exception occurred when getting the tweet from twitter String! ", ex.getCause());
             }
         }
     }
 
+    /**
+     * The following class is responsible for serializing the twitter payload.
+     */
+    static class PayLoadSerializationSchema implements KafkaSerializationSchema<PayLoad> {
+
+        private String topic;
+        private ObjectMapper mapper;
+
+        public PayLoadSerializationSchema(String topic) {
+            super();
+            this.topic = topic;
+        }
+
+        @Override
+        public ProducerRecord<byte[], byte[]> serialize(PayLoad payLoad, @Nullable Long aLong) {
+            byte[] b = null;
+            if (mapper == null) {
+                mapper = new ObjectMapper();
+            }
+            try {
+                b = mapper.writeValueAsBytes(payLoad);
+            } catch (JsonProcessingException ex) {
+                LOG.error("Error when serializing kafka schema! ", ex.getCause());
+            }
+            return new ProducerRecord<>(topic, b);
+        }
+    }
+
+    /**
+     * Agent init
+     * @param args no arguments taken
+     */
     public static void main(String[] args) {
         try {
             Properties twitterProperties = PropertyFile.getProperties(IConstants.TWITTER_PROPERTIES);
             TwitterSource twitterSource = new TwitterSource(twitterProperties);
             twitterSource.setCustomEndpointInitializer(new TweetFilter());
             StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
-            DataStream<String> streamSource = environment.addSource(twitterSource).flatMap(new TweetFlatMapper());
+            DataStream<PayLoad> streamSource = environment.addSource(twitterSource).flatMap(new TweetFlatMapper());
 
             //Configure kafka sink.
             Properties kafkaProperties = PropertyFile.getProperties(IConstants.KAFKA_PROPERTIES);
-            FlinkKafkaProducer<String> kafkaSource = new FlinkKafkaProducer<>(kafkaProperties.getProperty("topic.name"),
-                                                     new SimpleStringSchema(), kafkaProperties);
-            streamSource.addSink(kafkaSource);
+            String producerTopic = kafkaProperties.getProperty("topic.name");
+            streamSource.addSink(new FlinkKafkaProducer(producerTopic, new PayLoadSerializationSchema(producerTopic),
+                    kafkaProperties, FlinkKafkaProducer.Semantic.EXACTLY_ONCE));
+            streamSource.print();
             environment.execute(IConstants.JOB_NAME);
         } catch (Exception ex) {
             LOG.error("Exception occurred executing the environment ", ex.getCause());
