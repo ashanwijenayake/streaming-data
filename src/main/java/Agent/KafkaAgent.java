@@ -98,8 +98,7 @@ public class KafkaAgent {
 
         StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
         Properties kafkaProperties = PropertyFile.getProperties(IConstants.KAFKA_PROPERTIES);
-        FlinkKafkaConsumer<String> kafkaSource = new FlinkKafkaConsumer<>
-                (kafkaProperties.getProperty("topic.name"), new SimpleStringSchema(), kafkaProperties);
+        FlinkKafkaConsumer<String> kafkaSource = new FlinkKafkaConsumer<>(kafkaProperties.getProperty("topic.name"), new SimpleStringSchema(), kafkaProperties);
         environment.addSource(kafkaSource).flatMap(new processTweet());
         environment.execute(IConstants.JOB_NAME);
     }
